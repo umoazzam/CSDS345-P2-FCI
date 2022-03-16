@@ -1,0 +1,1 @@
+("8.3" tarm64osx ("b465fe71bb0b144e49e8079fb7c6d29c616f0acb" . "4c9031060a0c596c3608c3a6866a22d4534d15c8") #"/Users/umoazzam/Library/CloudStorage/OneDrive-Personal/Documents/4th Year CWRU/CSDS 345 Programming Languages/HW Assignments/CSDS345-P2-FCI/lex.rkt" (collects #"errortrace" #"errortrace-key.rkt") (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt"))

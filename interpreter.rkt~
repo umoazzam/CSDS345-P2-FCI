@@ -29,6 +29,7 @@
                               (checkDeclaredVariables statement state)))
       ((eq? (operator statement) '+) (+ (M_value (leftOperand statement) state) (M_value (rightOperand statement) state)))
       ((eq? (operator statement) '-) (cond
+                                       ;; abstract ME!
                                        ((null? (operand statement)) (- 0 (M_value (leftOperand statement) state)))
                                        (else(- (M_value (leftOperand statement) state) (M_value (rightOperand statement) state)))))
       ((eq? (operator statement) '*) (* (M_value (leftOperand statement) state) (M_value (rightOperand statement) state)))
@@ -56,9 +57,8 @@
 ; States and function states
 
 (define M_state
-  (lambda (statement state return)
+  (lambda (statement state)
     (cond
-      ((eq? (function statement) 'begin) (statement state return))
       ((eq? (function statement) 'return) (M_state-return (returnExpression statement) state))
       ((eq? (function statement) 'var) (M_state-declaration statement state))
       ((eq? (function statement) '=) (M_state-assign (leftOperand statement) (expression statement) state))
@@ -82,13 +82,6 @@
       ((declared? (newVariable statement) (declaredVariables state)) (error 'error "redefining already defined variable"))
       ((null? (value statement)) (list (cons (newVariable statement) (declaredVariables state)) (cons '() (declaredValues state))))
       (else (list(cons (newVariable statement) (declaredVariables state)) (cons (M_value (newValue statement) state) (declaredValues state)))))))
-
-(define M_block
-  (lambda (blockcode state return)
-    (cond
-      ((null? blockcode) (pop state))
-      ((eq? (operator blockcode) 'begin) (M_block (nextCommand blockcode) (push state) return))
-      (else (M_block (nextCommand blockcode) (M_state (firstCommand blockcode) state return) return)))))
 
 (define M_state-assign
   (lambda (variable statement state)
@@ -141,17 +134,6 @@
       (else (list (cons (firstVariable state) (declaredVariables (insert var val (check state))))
                   (cons (firstValue state) (declaredValues (insert var val (check state)))))))))
 
-;; push
-;; adds a layer to the top of the state
-(define push
-  (lambda (state)
-    (cons '() state)))
-
-;; pop
-;; pops a layer from the top of the state and update-state to whole state
-(define pop
-  (lambda (state)
-    (nextState state)))
 
 ;; ***********************************************************
 ; Abstractions
@@ -198,57 +180,3 @@
 (define whileCondition cadr)
 (define whileStatement caddr)
 
-; block abstractions, ie first and next command of code block
-
-(define firstCommand
-  (lambda (command)
-    (car command)))
-
-(define nextCommand
-  (lambda (command)
-    (cdr command)))
-
-; try-catch-throw-finally abstractions
-
-(define try-body
-  (lambda (command)
-    (car (cdr command))))
-
-(define catch-body
-  (lambda (command)
-    (if (null? (car (cdr (cdr command))))
-    '()
-    (car (cdr (cdr command))))))
-
-(define throw-val
-  (lambda (lis)
-    (car (cdr lis))))
-
-(define exception
-  (lambda (catchbody)
-    (car(car (cdr catchbody)))))
-
-; first statement of catch
-(define first_stmt
-  (lambda (stmt-list)
-    (car (cdr stmt-list))))
-
-; accessing the top layer and next layer of states
-
-(define topLayer
-  (lambda (state)
-    (car state)))
-
-(define nextLayer
-  (lambda (state)
-    (cdr state)))
-
-; state return functions
-
-(define nextState
-  (lambda (state)
-    (cdr state)))
-
-(define currState
-  (lambda (state)
-    (car state)))
