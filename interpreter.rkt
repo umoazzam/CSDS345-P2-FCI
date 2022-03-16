@@ -220,6 +220,11 @@
     '()
     (car (cdr (cdr command))))))
 
+; first statement of catch
+(define first_stmt
+  (lambda (stmt-list)
+    (car (cdr stmt-list))))
+
 (define throw-val
   (lambda (lis)
     (car (cdr lis))))
@@ -228,10 +233,11 @@
   (lambda (catchbody)
     (car(car (cdr catchbody)))))
 
-; first statement of catch
-(define first_stmt
-  (lambda (stmt-list)
-    (car (cdr stmt-list))))
+(define finally-body
+  (lambda (cmd)
+    (if (null? (car (cdr (cdr (cdr cmd)))))
+        '()
+        (car (cdr (car (cdr (cdr (cdr cmd)))))))))
 
 ; accessing the top layer and next layer of states
 
