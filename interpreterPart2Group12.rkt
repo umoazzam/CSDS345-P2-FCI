@@ -25,6 +25,8 @@
 
 ;; ***********************************************************
 ; Basic types: values, boolean
+
+; Evaluate the value of the expression
 (define M_value
   (lambda (statement state)
     (cond
@@ -42,7 +44,8 @@
       ((eq? (operator statement) '/) (quotient (M_value (leftOperand statement) state) (M_value (rightOperand statement) state)))
       ((eq? (operator statement) '%) (remainder (M_value (leftOperand statement) state) (M_value (rightOperand statement) state)))
       (else (M_boolean statement state)))))
-
+      
+; Evaluate the result of a boolean expression
 (define M_boolean
   (lambda (statement state)
     (cond
@@ -60,6 +63,8 @@
 
 ;; ***********************************************************
 ; States and function states
+
+; Returns the result state
 (define M_state
   (lambda (statement state return continue break throw)
     (cond
@@ -91,6 +96,7 @@
       ((value? statement) (add (variable statement) (M_value (val statement) state) state))
       (else (add (variable statement) 'null state)))))
 
+; Returns the state resulting from the execution of a while statement.
 (define M_state-while
   (lambda (statement state return continue break throw)
     (call/cc
@@ -98,7 +104,8 @@
        (cond
          ((M_boolean (condition statement) state) (M_state statement (call/cc (lambda (continue) (M_state (body statement) state return continue break throw))) return continue break throw))
          ((not (M_boolean (condition statement) state)) state))))))
-
+         
+; Returns the state resulting from the execution of an if-else statement. 
 (define M_state-ifElse
   (lambda (statement state return continue break throw)
     (cond
